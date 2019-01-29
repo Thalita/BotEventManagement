@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace BotEventManagement.Api.Middleware
+namespace EventManager.Api.Middleware
 {
     public class ErrorHandlingMiddleware
     {

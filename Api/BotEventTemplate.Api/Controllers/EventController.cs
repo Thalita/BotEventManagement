@@ -1,35 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BotEventManagement.Services.Interfaces;
-using BotEventManagement.Services.Model.API;
-using BotEventManagement.Services.Model.Database;
-using Microsoft.AspNetCore.Http;
+﻿using EventManager.Services.Interfaces;
+using EventManager.Services.Model.DTO;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BotEventManagement.Api.Controllers
+namespace EventManager.Api.Controllers
 {
     /// <summary>
-    /// Manage Event
+    /// Manage Events
     /// </summary>
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
-    public class EventController : ControllerBase
+    public class EventsController : ControllerBase
     {
-        private IEventService _eventService;
-        public EventController(IEventService eventService)
+        private IEventRepository _eventService;
+        public EventsController(IEventRepository eventService)
         {
             _eventService = eventService;
         }
         /// <summary>
-        /// Get events
+        /// Get all events
         /// </summary>
         /// <returns></returns>
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(_eventService.GetAll());
+            return Ok(_eventService.Select(e => true));
         }
 
         /// <summary>
@@ -38,25 +32,21 @@ namespace BotEventManagement.Api.Controllers
         /// <param name="eventId"></param>
         /// <returns></returns>
         [HttpGet, Route("{eventId}")]
-        public IActionResult Get([FromRoute]string eventId)
+        public IActionResult GetById([FromRoute]int eventId)
         {
-            return Ok(_eventService.GetById(eventId));
+            return Ok(_eventService.Select(e => e.EventId == eventId));
         }
 
         /// <summary>
         /// Update a specific event
         /// </summary>
-        /// <param name="eventId"></param>
         /// <param name="event"></param>
         /// <returns></returns>
         [HttpPut("{eventId}")]
-        public IActionResult Put([FromRoute] string eventId, [FromBody] EventRequest @event)
+        public IActionResult Put([FromBody] EventDTO @event)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            if (eventId != @event.Id)
-                return BadRequest("This id doesn't correspond with object");
 
             _eventService.Update(@event);
 
@@ -69,7 +59,7 @@ namespace BotEventManagement.Api.Controllers
         /// <param name="event"></param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult Post([FromBody] EventRequest @event)
+        public IActionResult Post([FromBody] EventDTO @event)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -85,9 +75,14 @@ namespace BotEventManagement.Api.Controllers
         /// <param name="eventId"></param>
         /// <returns></returns>
         [HttpDelete("{eventId}")]
-        public IActionResult Delete([FromRoute] string eventId)
+        public IActionResult Delete([FromRoute] int eventId)
         {
-            _eventService.Delete(eventId);
+            var @event = new EventDTO
+            {
+                Id = eventId
+            };
+
+            _eventService.Delete(@event);
             return Ok();
         }
     }

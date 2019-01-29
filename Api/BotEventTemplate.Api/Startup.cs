@@ -1,8 +1,7 @@
-﻿using System;
-using System.IO;
-using BotEventManagement.Services.Interfaces;
-using BotEventManagement.Services.Model.Database;
-using BotEventManagement.Services.Service;
+﻿using EventManager.Api.Middleware;
+using EventManager.Services.Interfaces;
+using EventManager.Services.Model.Database;
+using EventManager.Services.Respositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
-using BotEventManagement.Api.Middleware;
+using System;
+using System.IO;
 
 namespace BotEventTemplate.Api
 {
@@ -34,7 +34,7 @@ namespace BotEventTemplate.Api
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             Console.WriteLine("Configure Services - Before Database Configuration");
-            services.AddDbContext<BotEventManagementContext>(options => options.UseSqlServer(Configuration["DefaultConnection"]));
+            services.AddDbContext<EventManagerContext>(options => options.UseSqlServer(Configuration["DefaultConnection"]));
 
             Console.WriteLine("Configure Services - Before Swagger Configuration");
             services.AddSwaggerGen(c =>
@@ -46,7 +46,7 @@ namespace BotEventTemplate.Api
                     Description = "API to manage events",
                 });
                 var basePath = AppContext.BaseDirectory;
-                var xmlPath = Path.Combine(basePath, "BotEventManagement.Api.xml");
+                var xmlPath = Path.Combine(basePath, "EventManager.Api.xml");
 
                 Console.WriteLine($"Configure Services - Directory: {xmlPath}");
 
@@ -55,11 +55,11 @@ namespace BotEventTemplate.Api
 
             Console.WriteLine("Configure Services - Before Dependency Injection Configuration");
 
-            services.AddScoped<IEventService, EventService>();
-            services.AddScoped<IEventParticipantService, EventParticipantsService>();
-            services.AddScoped<IActivityService, ActivityService>();
-            services.AddScoped<IUserTalksService, UserTalksService>();
-            services.AddScoped<ISpeakerService, SpeakerService>();
+            services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<IAttendantRepository, AttendantRepository>();
+            services.AddScoped<IPresentationRepository, PresentationRepository>();
+            services.AddScoped<IUserPresentationsRepository, PresentationAttendantRepository>();
+            services.AddScoped<ISpeakerRepository, SpeakerRepository>();
         }
 
 
@@ -99,7 +99,7 @@ namespace BotEventTemplate.Api
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                using (var context = serviceScope.ServiceProvider.GetService<BotEventManagementContext>())
+                using (var context = serviceScope.ServiceProvider.GetService<EventManagerContext>())
                 {
                     context.Database.Migrate();
                 }

@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 
-namespace BotEventManagement.Api.Controllers
+namespace EventManager.Api.Controllers
 {
     /// <summary>
     /// Controller to validate api health
     /// </summary>
-    [Route("/healthz")]
+    [Route("/health")]
     public class HealthController : Controller
     {
 

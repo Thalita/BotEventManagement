@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BotEventManagement.Services.Interfaces;
-using BotEventManagement.Services.Model.API;
-using BotEventManagement.Services.Model.Database;
-using Microsoft.AspNetCore.Http;
+﻿using EventManager.Services.Interfaces;
+using EventManager.Services.Model.DTO;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BotEventManagement.Api.Controllers
+namespace EventManager.Api.Controllers
 {
     /// <summary>
     /// Manage Speakers of an event
@@ -17,8 +11,8 @@ namespace BotEventManagement.Api.Controllers
     [ApiController]
     public class SpeakerController : ControllerBase
     {
-        private ISpeakerService _speakerService;
-        public SpeakerController(ISpeakerService speakerService)
+        private ISpeakerRepository _speakerService;
+        public SpeakerController(ISpeakerRepository speakerService)
         {
             _speakerService = speakerService;
         }
@@ -31,7 +25,9 @@ namespace BotEventManagement.Api.Controllers
         [HttpGet]
         public IActionResult Get([FromHeader] string eventId)
         {
-            return Ok(_speakerService.GetAll(eventId));
+            // return Ok(_speakerService.GetAll(eventId));
+
+            return Ok();
         }
 
         /// <summary>
@@ -43,7 +39,9 @@ namespace BotEventManagement.Api.Controllers
         [HttpGet, Route("{speakerId}")]
         public IActionResult Get([FromHeader] string eventId, [FromRoute]string speakerId)
         {
-            return Ok(_speakerService.GetById(speakerId, eventId));
+            //return Ok(_speakerService.GetById(speakerId, eventId));
+
+            return Ok();
         }
 
         /// <summary>
@@ -53,7 +51,7 @@ namespace BotEventManagement.Api.Controllers
         /// <param name="speaker"></param>
         /// <returns></returns>
         [HttpPut("{speakerId}")]
-        public IActionResult Put([FromRoute] string speakerId, [FromBody] SpeakerRequest speaker)
+        public IActionResult Put([FromRoute] int speakerId, [FromBody] SpeakerDTO speaker)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -72,7 +70,7 @@ namespace BotEventManagement.Api.Controllers
         /// <param name="speaker"></param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult Post([FromBody] SpeakerRequest speaker)
+        public IActionResult Post([FromBody] SpeakerDTO speaker)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -91,7 +89,7 @@ namespace BotEventManagement.Api.Controllers
         [HttpDelete("{speakerId}")]
         public IActionResult Delete([FromHeader] string eventId, [FromRoute] string speakerId)
         {
-            _speakerService.Delete(eventId, speakerId);
+            //_speakerService.Delete(eventId, speakerId);
             return Ok();
         }
     }
