@@ -1,9 +1,10 @@
 ﻿using EventManager.Services.Model.Entities;
-using EventManager.Services.Model.DTO;
+using EventManager.Services.Model.DTO.Request;
+using EventManager.Services.Model.DTO.Response;
 
 namespace EventManager.Services.Interfaces
 {
-    public interface ISpeakerRepository : IRepository<SpeakerDTO, SpeakerDTO, Speaker>
+    public interface ISpeakerRepository : IRepository<SpeakerRequest, SpeakerResponse, Speaker>
     {
     }
 }

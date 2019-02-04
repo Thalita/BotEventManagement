@@ -1,5 +1,5 @@
 ﻿using EventManager.Services.Interfaces;
-using EventManager.Services.Model.DTO;
+using EventManager.Services.Model.DTO.Request;
 using EventManager.Services.Model.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -7,10 +7,11 @@ using System.Linq;
 using System;
 using System.Linq.Expressions;
 using EventManager.Services.Model.Database;
+using EventManager.Services.Model.DTO.Response;
 
-namespace EventManager.Services.Respositories
+namespace EventManager.Services.Repositories
 {
-    public class PresentationAttendantRepository : IUserPresentationsRepository
+    public class PresentationAttendantRepository : IAttendantPresentationRepository
     {
         private EventManagerContext _EventManagerContext;
 
@@ -19,48 +20,77 @@ namespace EventManager.Services.Respositories
             _EventManagerContext = EventManagerContext;
         }
 
-        public void Create(AttendantPresentationDTO userPresentations)
+        public void Create(AttendantPresentationRequest element)
         {
             _EventManagerContext.PresentationAttendant.Add(new PresentationAttendant
             {
-                PresentationId = userPresentations.PresentationId,
-                AttendantId = userPresentations.UserId
+                PresentationId = element.PresentationId,
+                AttendantId = element.AttendantId
             });
 
             _EventManagerContext.SaveChanges();
         }
 
-        public void Delete(AttendantPresentationDTO userPresentations)
+        public void Delete(AttendantPresentationRequest presentationAttendants)
         {
-            PresentationAttendant result = _EventManagerContext.PresentationAttendant.Where(x => x.AttendantId == userPresentations.UserId
-                                                                                                && x.PresentationId == userPresentations.PresentationId).FirstOrDefault();
+            PresentationAttendant result = _EventManagerContext.PresentationAttendant.Where(x => x.AttendantId == presentationAttendants.AttendantId
+                                                                                                && x.PresentationId == presentationAttendants.PresentationId).FirstOrDefault();
 
             _EventManagerContext.PresentationAttendant.Remove(result);
 
             _EventManagerContext.SaveChanges();
         }
 
-        public IEnumerable<PresentationDTO> Select(Expression<Func<PresentationAttendant, bool>> query)
+        public IEnumerable<AttendantResponse> Select(Expression<Func<PresentationAttendant, bool>> query)
         {
+            var presentationAttendant = _EventManagerContext.PresentationAttendant
+                                                     .Include(x => x.Presentation)
+                                                     .ThenInclude(x=> x.PresentationCredentials)
+                                                     .ThenInclude(x => x.Credential)
+                                                     .Where(query);
 
-            List<PresentationDTO> userPresentationsResponses = new List<PresentationDTO>();
-
-            foreach (var item in _EventManagerContext.PresentationAttendant.Include(x => x.Presentation).Where(query))
+            var result = new AttendantResponse
             {
-                userPresentationsResponses.Add(new PresentationDTO
+                AttendantId = presentationAttendant.First().AttendantId,
+                EventId = presentationAttendant.First().Presentation.EventId,
+                Email = presentationAttendant.First().Attendant.Email,
+                Name = presentationAttendant.First().Attendant.Name
+            };
+
+
+            foreach (var item in presentationAttendant)
+            {
+                //Todo code review
+                var credentials = from c in item.Presentation.PresentationCredentials.Select(x => x.Credential)
+                                  select new CredentialResponse
+                                  {
+                                      CredentialId = c.CredentialId,
+                                      EventId = c.EventId,
+                                      Name = c.Name
+                                  };
+
+                result.Presentations.Add(new PresentationResponse
                 {
-                    PresentationId = item.Presentation.PresentationId,
-                    Date = item.Presentation.Date,
-                    Description = item.Presentation.Description,
+                    PresentationId = item.PresentationId,
+                    EventId = item.Presentation.EventId,
                     Name = item.Presentation.Name,
-                    EventId = item.Presentation.EventId
-                });
+                    Description = item.Presentation.Description,
+                    Date = item.Presentation.Date,
+                    Local = item.Presentation.Local,
+                    Theme = item.Presentation.Theme,
+                    Category = item.Presentation.Category,
+                    Credentials = credentials.ToList()
+                });              
+
             }
 
-            return userPresentationsResponses;
+            var list = new List<AttendantResponse>();
+            list.Add(result);
+
+            return list;
         }
 
-        public void Update(AttendantPresentationDTO element)
+        public void Update(AttendantPresentationRequest element)
         {
             throw new NotImplementedException();
         }

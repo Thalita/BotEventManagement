@@ -8,8 +8,6 @@ namespace EventManager.Services.Interfaces
     {
         void Create(TIn element);
         IEnumerable<TOut> Select(Expression<Func<TEntity, bool>> query);
-
-        //ToDo find a better way to delete element
         void Delete(TIn element);
         void Update(TIn element);
     }

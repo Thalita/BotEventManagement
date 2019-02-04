@@ -15,7 +15,5 @@ namespace EventManager.Services.Model.Entities
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public Address Address { get; set; }
-
-        public virtual IList<EventSponsor> EventSponsors { get; set; }
     }
 }

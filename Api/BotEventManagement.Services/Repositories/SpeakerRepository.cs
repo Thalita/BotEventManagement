@@ -1,6 +1,8 @@
-﻿using EventManager.Services.Interfaces;
+﻿using EventManager.Services.Extensions;
+using EventManager.Services.Interfaces;
 using EventManager.Services.Model.Database;
-using EventManager.Services.Model.DTO;
+using EventManager.Services.Model.DTO.Request;
+using EventManager.Services.Model.DTO.Response;
 using EventManager.Services.Model.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -8,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace EventManager.Services.Respositories
+namespace EventManager.Services.Repositories
 {
     public class SpeakerRepository : ISpeakerRepository
     {
@@ -19,9 +21,9 @@ namespace EventManager.Services.Respositories
             _EventManagerContext = EventManagerContext;
         }
 
-        public void Create(SpeakerDTO element)
+        public void Create(SpeakerRequest element)
         {
-            Speaker speaker = new Speaker
+            var speaker = new Speaker
             {
                 Biography = element.Biography,
                 Name = element.Name,
@@ -32,36 +34,59 @@ namespace EventManager.Services.Respositories
             _EventManagerContext.SaveChanges();
         }
 
-
-        public void Delete(SpeakerDTO element)
+        public void Delete(SpeakerRequest element)
         {
             Speaker result = _EventManagerContext.Speaker.Where(x => x.SpeakerId == element.SpeakerId).First();
             _EventManagerContext.Speaker.Remove(result);
 
             _EventManagerContext.SaveChanges();
-
         }
 
-        public IEnumerable<SpeakerDTO> Select(Expression<Func<Speaker, bool>> query)
+        public IEnumerable<SpeakerResponse> Select(Expression<Func<Speaker, bool>> query)
         {
-            List<SpeakerDTO> speakersRequests = new List<SpeakerDTO>();
+            var speakers = new List<SpeakerResponse>();
 
-            foreach (var item in _EventManagerContext.Speaker.Include(x => x.SpeakerPresentations)
-                                                                .ThenInclude(x => x.Presentation).Where(query))
+            var speakerList = _EventManagerContext.Speaker.Include(sp => sp.SpeakerPresentations)
+                                                          .ThenInclude(p => p.Presentation)
+                                                          .ThenInclude(pc => pc.PresentationCredentials)
+                                                          .ThenInclude(c => c.Credential)
+                                                          .Where(query);
+
+            foreach (var item in speakerList)
             {
-                speakersRequests.Add(new SpeakerDTO
+
+                var presentations = from p in item.SpeakerPresentations
+                                    select new PresentationResponse
+                                    {
+                                        PresentationId = p.PresentationId,
+                                        EventId = p.Presentation.EventId,
+                                        Description = p.Presentation.Description,
+                                        Category = p.Presentation.Category,
+                                        Date = p.Presentation.Date,
+                                        Theme = p.Presentation.Theme,
+                                        Local = p.Presentation.Local,
+                                        Name = p.Presentation.Name,
+                                        Credentials = p.Presentation.PresentationCredentials
+                                                       .Select(x => x.Credential).ToCredentialResponse().ToList()
+                                    };
+
+
+                speakers.Add(new SpeakerResponse
                 {
+                    SpeakerId = item.SpeakerId,
                     Biography = item.Biography,
                     Name = item.Name,
-                    SpeakerId = item.SpeakerId,
-                    UploadedPhoto = item.UploadedPhoto
+                    UploadedPhoto = item.UploadedPhoto,
+                    Presentations = presentations.ToList()
                 });
+
+
             }
 
-            return speakersRequests;
+            return speakers;
         }
 
-        public void Update(SpeakerDTO element)
+        public void Update(SpeakerRequest element)
         {
             var speaker = _EventManagerContext.Speaker.Where(x => x.SpeakerId == element.SpeakerId).FirstOrDefault();
 
@@ -72,5 +97,6 @@ namespace EventManager.Services.Respositories
             _EventManagerContext.Entry(speaker).State = EntityState.Modified;
             _EventManagerContext.SaveChanges();
         }
+
     }
 }

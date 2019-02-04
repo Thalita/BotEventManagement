@@ -2,21 +2,26 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace EventManager.Services.Model.DTO
+namespace EventManager.Services.Model.DTO.Response
 {
-    public class AttendantDTO
+    public class AttendantResponse
     {
-        [JsonProperty("attendantId")]
+        [JsonProperty("id")]
         public int AttendantId { get; set; }
-        [JsonProperty("idEvento")]
+
+        [JsonProperty("eventId")]
         public int EventId { get; set; }
-        [JsonProperty("idCredencial")]
+
+        [JsonProperty("credentialId")]
         public int CredentialId { get; set; }
-        [JsonProperty("nome")]
+
+        [JsonProperty("name")]
         public string Name { get; set; }
+
         [JsonProperty("email")]
         public string Email { get; set; }
-        [JsonProperty("apresentacoes")]
-        public IList<Presentation> Presentations;
+
+        [JsonProperty("presentations")]
+        public IList<PresentationResponse> Presentations;
     }
 }

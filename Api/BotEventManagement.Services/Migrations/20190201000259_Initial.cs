@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace EventManager.Services.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -48,22 +48,6 @@ namespace EventManager.Services.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Speaker", x => x.SpeakerId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Sponsor",
-                schema: "EventManager",
-                columns: table => new
-                {
-                    SponsorId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(nullable: true),
-                    PageURL = table.Column<string>(nullable: true),
-                    UploadedPhoto = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Sponsor", x => x.SponsorId);
                 });
 
             migrationBuilder.CreateTable(
@@ -113,29 +97,26 @@ namespace EventManager.Services.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EventSponsor",
+                name: "Sponsor",
                 schema: "EventManager",
                 columns: table => new
                 {
-                    EventId = table.Column<int>(nullable: false),
                     SponsorId = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(nullable: true),
+                    PageURL = table.Column<string>(nullable: true),
+                    UploadedPhoto = table.Column<string>(nullable: true),
+                    EventId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EventSponsor", x => new { x.EventId, x.SponsorId });
+                    table.PrimaryKey("PK_Sponsor", x => x.SponsorId);
                     table.ForeignKey(
-                        name: "FK_EventSponsor_Event_EventId",
+                        name: "FK_Sponsor_Event_EventId",
                         column: x => x.EventId,
                         principalSchema: "EventManager",
                         principalTable: "Event",
                         principalColumn: "EventId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_EventSponsor_Sponsor_SponsorId",
-                        column: x => x.SponsorId,
-                        principalSchema: "EventManager",
-                        principalTable: "Sponsor",
-                        principalColumn: "SponsorId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -256,18 +237,6 @@ namespace EventManager.Services.Migrations
                 column: "EventId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EventSponsor_SponsorId",
-                schema: "EventManager",
-                table: "EventSponsor",
-                column: "SponsorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EventSponsor_EventId_SponsorId",
-                schema: "EventManager",
-                table: "EventSponsor",
-                columns: new[] { "EventId", "SponsorId" });
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Presentation_EventId",
                 schema: "EventManager",
                 table: "Presentation",
@@ -308,14 +277,16 @@ namespace EventManager.Services.Migrations
                 schema: "EventManager",
                 table: "SpeakerPresentation",
                 columns: new[] { "SpeakerId", "PresentationId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Sponsor_EventId",
+                schema: "EventManager",
+                table: "Sponsor",
+                column: "EventId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "EventSponsor",
-                schema: "EventManager");
-
             migrationBuilder.DropTable(
                 name: "PresentationAttendant",
                 schema: "EventManager");

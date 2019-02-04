@@ -3,21 +3,26 @@ using EventManager.Services.Model.Entities;
 using Newtonsoft.Json;
 using System;
 
-namespace EventManager.Services.Model.DTO
+namespace EventManager.Services.Model.DTO.Request
 {
-    public class EventDTO
+    public class EventRequest
     {
         [JsonProperty("id")]
         public int Id { get; set; }
-        [JsonProperty("nome")]
+
+        [JsonProperty("name")]
         public string Name { get; set; }
-        [JsonProperty("descricao")]
+
+        [JsonProperty("description")]
         public string Description { get; set; }
-        [JsonProperty("dataInicio"), JsonConverter(typeof(DateFormatConverter), "dd/MM/yyyy HH:mm")]
+
+        [JsonProperty("startDate"), JsonConverter(typeof(DateFormatConverter), "dd/MM/yyyy HH:mm")]
         public DateTime StartDate { get; set; }
-        [JsonProperty("dataTermino"), JsonConverter(typeof(DateFormatConverter), "dd/MM/yyyy HH:mm")]
+
+        [JsonProperty("endDate"), JsonConverter(typeof(DateFormatConverter), "dd/MM/yyyy HH:mm")]
         public DateTime EndDate { get; set; }
-        [JsonProperty("endereco")]
+
+        [JsonProperty("address")]
         public Address Address { get; set; }
     }
 }

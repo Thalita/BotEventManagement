@@ -12,6 +12,9 @@ namespace EventManager.Services.Model.Entities
         public DateTime Date { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public string Theme { get; set; }
+        public string Category { get; set; }
+        public string Local { get; set; }
 
         [ForeignKey("EventId")]
         public int EventId { get; set; }

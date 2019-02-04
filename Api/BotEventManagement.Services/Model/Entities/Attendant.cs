@@ -19,4 +19,3 @@ namespace EventManager.Services.Model.Entities
 
     }
 }
-

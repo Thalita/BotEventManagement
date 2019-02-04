@@ -4,8 +4,7 @@ using EventManager.Services.Model.DTO.Response;
 
 namespace EventManager.Services.Interfaces
 {
-    public interface IAttendantRepository : IRepository<AttendantRequest, AttendantResponse, Attendant>
+    public interface IAttendantPresentationRepository : IRepository<AttendantPresentationRequest, AttendantResponse, PresentationAttendant>
     {
-
     }
 }

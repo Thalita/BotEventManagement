@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventManager.Services.Migrations
 {
     [DbContext(typeof(EventManagerContext))]
-    [Migration("20190126224730_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20190201000259_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -75,21 +75,6 @@ namespace EventManager.Services.Migrations
                     b.HasKey("EventId");
 
                     b.ToTable("Event");
-                });
-
-            modelBuilder.Entity("EventManager.Services.Model.Entities.EventSponsor", b =>
-                {
-                    b.Property<int>("EventId");
-
-                    b.Property<int>("SponsorId");
-
-                    b.HasKey("EventId", "SponsorId");
-
-                    b.HasIndex("SponsorId");
-
-                    b.HasIndex("EventId", "SponsorId");
-
-                    b.ToTable("EventSponsor");
                 });
 
             modelBuilder.Entity("EventManager.Services.Model.Entities.Presentation", b =>
@@ -181,6 +166,8 @@ namespace EventManager.Services.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("EventId");
+
                     b.Property<string>("Name");
 
                     b.Property<string>("PageURL");
@@ -188,6 +175,8 @@ namespace EventManager.Services.Migrations
                     b.Property<string>("UploadedPhoto");
 
                     b.HasKey("SponsorId");
+
+                    b.HasIndex("EventId");
 
                     b.ToTable("Sponsor");
                 });
@@ -243,19 +232,6 @@ namespace EventManager.Services.Migrations
                         });
                 });
 
-            modelBuilder.Entity("EventManager.Services.Model.Entities.EventSponsor", b =>
-                {
-                    b.HasOne("EventManager.Services.Model.Entities.Event", "Event")
-                        .WithMany("EventSponsors")
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("EventManager.Services.Model.Entities.Sponsor", "Sponsor")
-                        .WithMany("EventSponsors")
-                        .HasForeignKey("SponsorId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("EventManager.Services.Model.Entities.Presentation", b =>
                 {
                     b.HasOne("EventManager.Services.Model.Entities.Event", "Event")
@@ -300,6 +276,14 @@ namespace EventManager.Services.Migrations
                     b.HasOne("EventManager.Services.Model.Entities.Speaker", "Speaker")
                         .WithMany("SpeakerPresentations")
                         .HasForeignKey("SpeakerId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("EventManager.Services.Model.Entities.Sponsor", b =>
+                {
+                    b.HasOne("EventManager.Services.Model.Entities.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

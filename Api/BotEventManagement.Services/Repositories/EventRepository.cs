@@ -1,14 +1,15 @@
 ﻿using EventManager.Services.Interfaces;
 using EventManager.Services.Model.Entities;
-using EventManager.Services.Model.DTO;
+using EventManager.Services.Model.DTO.Request;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using EventManager.Services.Model.Database;
+using EventManager.Services.Model.DTO.Response;
 
-namespace EventManager.Services.Respositories
+namespace EventManager.Services.Repositories
 {
     public class EventRepository : IEventRepository
     {
@@ -19,9 +20,9 @@ namespace EventManager.Services.Respositories
             _EventManagerContext = EventManagerContext;
         }
 
-        public void Create(EventDTO element)
+        public void Create(EventRequest element)
         {
-            Event @event = new Event
+            var @event = new Event
             {
                 Address = element.Address,
                 Description = element.Description,
@@ -34,21 +35,20 @@ namespace EventManager.Services.Respositories
             _EventManagerContext.SaveChanges();
         }
 
-        public void Delete(EventDTO element)
+        public void Delete(EventRequest element)
         {
-            Event @event = _EventManagerContext.Event.Where(x => x.EventId == element.Id).First();
+            var @event = _EventManagerContext.Event.Where(x => x.EventId == element.Id).First();
             _EventManagerContext.Event.Remove(@event);
-
             _EventManagerContext.SaveChanges();
         }
 
-        public IEnumerable<EventDTO> Select(Expression<Func<Event, bool>> query)
+        public IEnumerable<EventResponse> Select(Expression<Func<Event, bool>> query)
         {
-            List<EventDTO> eventRequests = new List<EventDTO>();
+           var eventRequests = new List<EventResponse>();
 
             foreach (var item in _EventManagerContext.Event.Where(query))
             {
-                eventRequests.Add(new EventDTO
+                eventRequests.Add(new EventResponse
                 {
                     Address = item.Address,
                     Description = item.Description,
@@ -58,12 +58,13 @@ namespace EventManager.Services.Respositories
                     Id = item.EventId
                 });
             }
+
             return eventRequests;
         }
 
-        public void Update(EventDTO element)
+        public void Update(EventRequest element)
         {
-            Event @event = _EventManagerContext.Event.Where(x => x.EventId == element.Id).FirstOrDefault();
+            var @event = _EventManagerContext.Event.Where(x => x.EventId == element.Id).FirstOrDefault();
 
             @event.StartDate = element.StartDate;
             @event.EndDate = element.EndDate;

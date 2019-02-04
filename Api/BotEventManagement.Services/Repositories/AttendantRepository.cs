@@ -1,14 +1,16 @@
 ﻿using EventManager.Services.Interfaces;
 using EventManager.Services.Model.Entities;
-using EventManager.Services.Model.DTO;
+using EventManager.Services.Model.DTO.Request;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using EventManager.Services.Model.Database;
+using EventManager.Services.Model.DTO.Response;
+using EventManager.Services.Extensions;
 
-namespace EventManager.Services.Respositories
+namespace EventManager.Services.Repositories
 {
     public class AttendantRepository : IAttendantRepository
     {
@@ -19,52 +21,66 @@ namespace EventManager.Services.Respositories
             _EventManagerContext = EventManagerContext;
         }
 
-        public void Create(AttendantDTO element)
+        public void Create(AttendantRequest element)
         {
-            Attendant attendant = new Attendant
+            var attendant = new Attendant
             {
                 CredentialId = element.CredentialId,
                 Email = element.Email,
-                Name = element.Name
+                Name = element.Name               
             };
 
             _EventManagerContext.Attendant.Add(attendant);
             _EventManagerContext.SaveChanges();
         }
 
-
-
-        public void Delete(AttendantDTO element)
+        public void Delete(AttendantRequest element)
         {
-            Attendant result = _EventManagerContext.Attendant.Where(x => x.AttendantId == element.AttendantId).First();
+            var result = _EventManagerContext.Attendant.Where(x => x.AttendantId == element.AttendantId).First();
 
             _EventManagerContext.Attendant.Remove(result);
 
-            _EventManagerContext.SaveChanges();
+            _EventManagerContext.PresentationAttendant.RemoveRange(_EventManagerContext.PresentationAttendant
+                                                                    .Where(p => p.AttendantId == result.AttendantId));
 
+            _EventManagerContext.SaveChanges();
         }
 
-        public IEnumerable<AttendantDTO> Select(Expression<Func<Attendant, bool>> query)
+        public IEnumerable<AttendantResponse> Select(Expression<Func<Attendant, bool>> query)
         {
-            List<AttendantDTO> participantsRequests = new List<AttendantDTO>();
+            var participantsReponse = new List<AttendantResponse>();
 
             foreach (var item in _EventManagerContext.Attendant.Where(query))
             {
-                participantsRequests.Add(new AttendantDTO
+                participantsReponse.Add(new AttendantResponse
                 {
                     AttendantId = item.AttendantId,
                     Name = item.Name,
                     CredentialId = item.CredentialId,
-
-                    Presentations = item.PresentationAttendants.Where(p => p.AttendantId == item.AttendantId)
-                                                                      .Select(p => p.Presentation).ToList()
+                    Email = item.Email,
+                    Presentations = (from p in item.PresentationAttendants
+                                                   .Where(p => p.AttendantId == item.AttendantId)
+                                                   .Select(p => p.Presentation)
+                                     select new PresentationResponse
+                                     {
+                                         PresentationId = p.PresentationId,
+                                         EventId = p.EventId,
+                                         Name = p.Name,
+                                         Date = p.Date,
+                                         Description = p.Description,
+                                         Local = p.Local,
+                                         Theme = p.Theme, 
+                                         Category = p.Category,
+                                         Credentials = p.PresentationCredentials.Select(x => x.Credential).ToCredentialResponse().ToList()
+                                     }).ToList()
+                                       
                 });
             }
 
-            return participantsRequests;
+            return participantsReponse;
         }
 
-        public void Update(AttendantDTO element)
+        public void Update(AttendantRequest element)
         {
             var attendant = _EventManagerContext.Attendant.Where(x => x.AttendantId == element.AttendantId).FirstOrDefault();
 
@@ -74,11 +90,6 @@ namespace EventManager.Services.Respositories
 
             _EventManagerContext.Entry(attendant).State = EntityState.Modified;
             _EventManagerContext.SaveChanges();
-        }
-
-        public void Update(Attendant element)
-        {
-            throw new NotImplementedException();
         }
     }
 }

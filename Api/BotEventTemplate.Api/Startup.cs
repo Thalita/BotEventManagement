@@ -1,7 +1,7 @@
 ﻿using EventManager.Api.Middleware;
 using EventManager.Services.Interfaces;
 using EventManager.Services.Model.Database;
-using EventManager.Services.Respositories;
+using EventManager.Services.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +22,6 @@ namespace BotEventTemplate.Api
                 .SetBasePath(environment.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables().Build();
-
         }
 
         public IConfiguration Configuration { get; }
@@ -41,7 +40,7 @@ namespace BotEventTemplate.Api
             {
                 c.SwaggerDoc("v1", new Info
                 {
-                    Title = "Bot Event Management",
+                    Title = "Event Manager",
                     Version = "v1",
                     Description = "API to manage events",
                 });
@@ -56,10 +55,14 @@ namespace BotEventTemplate.Api
             Console.WriteLine("Configure Services - Before Dependency Injection Configuration");
 
             services.AddScoped<IEventRepository, EventRepository>();
-            services.AddScoped<IAttendantRepository, AttendantRepository>();
-            services.AddScoped<IPresentationRepository, PresentationRepository>();
-            services.AddScoped<IUserPresentationsRepository, PresentationAttendantRepository>();
             services.AddScoped<ISpeakerRepository, SpeakerRepository>();
+            services.AddScoped<ISponsorRepository, SponsorRepository>();
+            services.AddScoped<IAttendantRepository, AttendantRepository>();
+            services.AddScoped<ICredentialRepository, CredentialRepository>();
+            services.AddScoped<IPresentationRepository, PresentationRepository>();
+            services.AddScoped<ISpeakerPresentationRepository, SpeakerPresentationRepository>();
+            services.AddScoped<IAttendantPresentationRepository, PresentationAttendantRepository>();
+            services.AddScoped<IPresentationCredentialRepository, PresentationCredentialRepository>();
         }
 
 
@@ -86,7 +89,7 @@ namespace BotEventTemplate.Api
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Bot Event Management V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Event Manager V1");
                 c.RoutePrefix = "";
             });
 

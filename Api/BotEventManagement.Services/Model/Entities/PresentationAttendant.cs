@@ -9,10 +9,8 @@ namespace EventManager.Services.Model.Entities
         public int PresentationId { get; set; }
         public virtual Presentation Presentation { get; set; }
 
-
         [ForeignKey("AttendantId")]
         public int AttendantId { get; set; }
         public virtual Attendant Attendant { get; set; }
-
     }
 }
