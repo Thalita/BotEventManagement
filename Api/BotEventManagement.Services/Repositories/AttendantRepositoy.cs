@@ -3,9 +3,9 @@ using EventManager.Services.Model.Entities;
 
 namespace EventManager.Services.Repositories
 {
-    public class SpeakerPresentationRepository : Repository<SpeakerPresentation>
+    public class AttendantRepository : Repository<Attendant>
     {
-        public SpeakerPresentationRepository(EventManagerContext context) : base(context)
+        public AttendantRepository(EventManagerContext context) : base(context)
         {
         }
     }

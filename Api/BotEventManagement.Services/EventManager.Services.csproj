@@ -11,4 +11,9 @@
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Converters\Response\" />
+    <Folder Include="Converters\Request\" />
+  </ItemGroup>
+
 </Project>

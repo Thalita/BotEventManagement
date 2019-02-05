@@ -1,7 +1,11 @@
 ﻿using EventManager.Services.Interfaces;
 using EventManager.Services.Model.DTO.Request;
+using EventManager.Services.Model.DTO.Request.Filters;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace EventManager.Api.Controllers
 {
@@ -35,6 +39,47 @@ namespace EventManager.Api.Controllers
             var result = _presentationRepository.Select(p => p.PresentationId == id);
 
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Get all attendants by filters
+        /// </summary>
+        /// <param name="id">Presentation's id</param>
+        /// <returns></returns>
+        [HttpPost]
+        public IActionResult GetPresentations([FromBody] PresentationRequestFilters filters)
+        {
+
+            var result = _presentationRepository.Select(e => e.EventId == filters.EventId);
+
+            var teste = new Dictionary<string, object>();
+
+          
+
+            teste.Add(nameof(filters.Category), filters.Category);
+
+            
+
+            if (!string.IsNullOrEmpty(filters.Category))
+            {
+                result = result.Where(c => c.Category == filters.Category);
+            }
+            if(!string.IsNullOrEmpty(filters.Local))
+            {
+                result = result.Where(l => l.Local == filters.Local);
+            }
+            if (!string.IsNullOrEmpty(filters.Name))
+            {
+                result = result.Where(t => t.Theme == filters.Theme);
+            }
+
+
+            _presentationRepository.Select(p => p.Category == filters.Category);
+
+
+            //return Ok(_attendantRepository.Select(x => x.PresentationAttendants.All(p => p.PresentationId == id)));
+
+            return Ok();
         }
 
         /// <summary>

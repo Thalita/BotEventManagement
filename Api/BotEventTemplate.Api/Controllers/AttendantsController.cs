@@ -106,24 +106,6 @@ namespace EventManager.Api.Controllers
         }
 
         /// <summary>
-        /// Remove an attendant from an event
-        /// </summary>
-        /// <param name="id">Attendant's id</param>
-        /// <returns></returns>
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            var attendantDTO = new AttendantRequest
-            {
-                AttendantId = id
-            };
-
-            _attendantRepository.Delete(attendantDTO);
-
-            return NoContent();
-        }
-
-        /// <summary>
         /// Remove a presentation to attendant's list
         /// </summary>
         /// <param name="attendantPresentation"></param>

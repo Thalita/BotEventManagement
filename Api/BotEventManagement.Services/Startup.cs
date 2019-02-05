@@ -1,7 +1,7 @@
 ﻿using EventManager.Api.Middleware;
 using EventManager.Services.Interfaces;
 using EventManager.Services.Model.Database;
-using EventManager.Services.Repositories.Queries;
+using EventManager.Services.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -54,7 +54,15 @@ namespace BotEventTemplate.Api
 
             Console.WriteLine("Configure Services - Before Dependency Injection Configuration");
 
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<ISpeakerRepository, SpeakerRepository>();
+            services.AddScoped<ISponsorRepository, SponsorRepository>();
+            services.AddScoped<IAttendantRepository, AttendantRepository>();
+            services.AddScoped<ICredentialRepository, CredentialRepository>();
+            services.AddScoped<IPresentationRepository, PresentationRepository>();
+            services.AddScoped<ISpeakerPresentationRepository, SpeakerPresentationRepository>();
+            services.AddScoped<IAttendantPresentationRepository, PresentationAttendantRepository>();
+            services.AddScoped<IPresentationCredentialRepository, PresentationCredentialRepository>();
         }
 
 

@@ -4,11 +4,18 @@ using System.Linq.Expressions;
 
 namespace EventManager.Services.Interfaces
 {
-    public interface IRepository<TIn, TOut, TEntity>
+    public interface IRepository<TEntity>
     {
-        void Create(TIn element);
-        IEnumerable<TOut> Select(Expression<Func<TEntity, bool>> query);
-        void Delete(TIn element);
-        void Update(TIn element);
+        TEntity Get(int id);
+        IEnumerable<TEntity> GetAll();
+        IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> predicate);
+     
+
+        void Add(TEntity element);
+        void AddRange(IEnumerable<TEntity> element);
+
+        void Remove(TEntity element);
+        void RemoveRange(IEnumerable<TEntity> element);
+
     }
 }
