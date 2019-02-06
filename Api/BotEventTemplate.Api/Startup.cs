@@ -2,8 +2,8 @@
 using EventManager.Api.Middleware;
 using EventManager.Services.Interfaces;
 using EventManager.Services.Mappers;
-using EventManager.Services.Model.Database;
-using EventManager.Services.Repositories.Queries;
+using EventManager.Services.Persistence.Database;
+using EventManager.Services.Persistence.Queries;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;

@@ -1,6 +1,6 @@
 ﻿//using EventManager.Services.Interfaces;
-//using EventManager.Services.Model.DTO.Request;
-//using EventManager.Services.Model.DTO.Request.Filters;
+//using EventManager.Api.DTOs.Request;
+//using EventManager.Api.DTOs.Request.Filters;
 //using Microsoft.AspNetCore.Mvc;
 //using System;
 //using System.Collections.Generic;

@@ -16,6 +16,5 @@ namespace EventManager.Services.Model.Entities
         public virtual Credential Credential { get; set; }
 
         public virtual IList<PresentationAttendant> PresentationAttendants { get; set; }
-
     }
 }

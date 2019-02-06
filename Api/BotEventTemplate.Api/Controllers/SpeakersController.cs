@@ -1,5 +1,5 @@
 ﻿//using EventManager.Services.Interfaces;
-//using EventManager.Services.Model.DTO.Request;
+//using EventManager.Api.DTOs.Request;
 //using Microsoft.AspNetCore.Mvc;
 //using System.Linq;
 
