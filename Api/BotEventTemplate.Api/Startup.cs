@@ -1,5 +1,7 @@
-﻿using EventManager.Api.Middleware;
+﻿using AutoMapper;
+using EventManager.Api.Middleware;
 using EventManager.Services.Interfaces;
+using EventManager.Services.Mappers;
 using EventManager.Services.Model.Database;
 using EventManager.Services.Repositories.Queries;
 using Microsoft.AspNetCore.Builder;
@@ -29,6 +31,17 @@ namespace BotEventTemplate.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+
+            var config = new AutoMapper.MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new MappingProfile());
+            });
+
+            var mapper = config.CreateMapper();
+            services.AddSingleton(mapper);
+
+
             Console.WriteLine("Configure Services - Begin");
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 

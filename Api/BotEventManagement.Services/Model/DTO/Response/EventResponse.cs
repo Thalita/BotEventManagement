@@ -8,7 +8,7 @@ namespace EventManager.Services.Model.DTO.Response
     public class EventResponse
     {
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public int EventId { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }
