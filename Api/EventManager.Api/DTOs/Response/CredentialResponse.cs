@@ -1,6 +1,4 @@
-﻿using EventManager.Services.Model.Entities;
-using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
 
 namespace EventManager.Api.DTOs.Response
 {
@@ -14,9 +12,5 @@ namespace EventManager.Api.DTOs.Response
 
         [JsonProperty("name")]
         public string Name { get; set; }
-
-        [JsonProperty("presentations")]
-        [JsonIgnore]
-        public IList<PresentationResponse> Presentations;
     }
 }

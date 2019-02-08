@@ -24,24 +24,27 @@ namespace EventManager.Services.Persistence.Repositories
 
         public virtual void AddRange(IEnumerable<TEntity> entities)
         {
-            _context.Set<TEntity>().AddRange(entities);       
+            _context.Set<TEntity>().AddRange(entities);
         }
 
         public virtual TEntity Get(int id)
         {
-           var entity = Query(true);
+            //For include navigations related, is necessary transform an Entity to an IQueryable
+            //otherwise is not possible to get properties to include them
+            var list = new List<TEntity>();
+            list.Add(_context.Set<TEntity>().Find(id));
 
-            return ((DbSet<TEntity>)entity).Find(id); 
+            return Include(list.AsQueryable()).First();
         }
 
         public virtual IEnumerable<TEntity> GetAll()
         {
-            return Query(true).ToList();
+            return QueryEager().ToList();
         }
 
         public virtual IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> predicate)
         {
-            return Query(true).Where(predicate);
+            return QueryEager().Where(predicate);
         }
 
 
@@ -55,16 +58,22 @@ namespace EventManager.Services.Persistence.Repositories
             _context.Set<TEntity>().RemoveRange(entities);
         }
 
-        protected virtual IQueryable<TEntity> Query(bool eager = false)
+        protected virtual IQueryable<TEntity> QueryEager()
         {
             var query = _context.Set<TEntity>().AsQueryable();
 
-            if (eager)
-            {
-                foreach (var property in _context.Model.FindEntityType(typeof(TEntity)).GetNavigations())
-                    query = query.Include(property.Name);
-            }
-            return query;
+            return Include(query);
         }
+
+        protected virtual IQueryable<TEntity> Include(IQueryable<TEntity> entities)
+        {
+            foreach (var property in _context.Model.FindEntityType(typeof(TEntity)).GetNavigations())
+            {
+                entities = entities.Include(property.Name);
+            }
+
+            return entities;
+        }
+
     }
 }

@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventManager.Api", "BotEventTemplate.Api\EventManager.Api.csproj", "{9F2A82E6-0E9E-4843-BF7C-28ECEB2BAFA4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventManager.Api", "EventManager.Api\EventManager.Api.csproj", "{9F2A82E6-0E9E-4843-BF7C-28ECEB2BAFA4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventManager.Services", "BotEventManagement.Services\EventManager.Services.csproj", "{3560DD09-D7D1-4345-AFA1-B24B070B7261}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventManager.Services", "EventManager.Services\EventManager.Services.csproj", "{3560DD09-D7D1-4345-AFA1-B24B070B7261}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

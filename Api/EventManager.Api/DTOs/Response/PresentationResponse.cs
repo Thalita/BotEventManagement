@@ -30,8 +30,5 @@ namespace EventManager.Api.DTOs.Response
 
         [JsonProperty("local")]
         public string Local { get; set; }
-
-        [JsonProperty("credentials")]
-        public IList<CredentialResponse> Credentials;
     }
 }
