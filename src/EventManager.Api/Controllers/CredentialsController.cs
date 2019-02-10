@@ -14,15 +14,10 @@ namespace EventManager.Api.Controllers
     /// </summary>
     [Route("credentials")]
     [ApiController]
-    public class CredentialsController : ControllerBase
+    public class CredentialsController : MasterController
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-
-        public CredentialsController(IUnitOfWork unitOfWork, IMapper mapper)
-        {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
+        public CredentialsController(IUnitOfWork unitOfWork, IMapper mapper):base (unitOfWork, mapper)
+        {       
         }
 
         /// <summary>
@@ -34,12 +29,10 @@ namespace EventManager.Api.Controllers
         public IActionResult GetById([FromRoute] int id)
         {
             var credential = _unitOfWork.Credential.Get(id);
+
             var result = _mapper.Map<CredentialResponse>(credential);
 
-            if (result == null)
-                return NotFound();
-
-            return Ok(result);
+            return ResponseResult(result);
         }
 
         /// <summary>
@@ -54,10 +47,7 @@ namespace EventManager.Api.Controllers
 
             _unitOfWork.Credential.Add(credential);
 
-            if (_unitOfWork.Save() == 1)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
 
         /// <summary>
@@ -70,15 +60,9 @@ namespace EventManager.Api.Controllers
         {
             var credential = _mapper.Map<Credential>(credentialRequest);
 
-            if (credential == null)
-                return BadRequest();
-
             _unitOfWork.Credential.Update(credentialRequest.CredentialId, credential);
 
-            if (_unitOfWork.Save() == 1)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
 
         /// <summary>
@@ -90,12 +74,10 @@ namespace EventManager.Api.Controllers
         public IActionResult Delete([FromRoute] int id)
         {
             var credential = _unitOfWork.Credential.Find(x => x.CredentialId == id).First();
+
             _unitOfWork.Credential.Remove(credential);
 
-            if (_unitOfWork.Save() > 0)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
 
         /// <summary>
@@ -107,6 +89,7 @@ namespace EventManager.Api.Controllers
         public IActionResult GetCredentialsPresentation([FromRoute] int id)
         {
             var presentations = _unitOfWork.Credential.Find(C => C.CredentialId == id).First().PresentationCredentials.Select(s => s.Presentation);
+
             var result = _mapper.Map<List<PresentationResponse>>(presentations);
 
             return Ok(result);
@@ -124,10 +107,7 @@ namespace EventManager.Api.Controllers
 
             _unitOfWork.PresentationCredential.Add(presentationCredential);
 
-            if (_unitOfWork.Save() == 1)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
 
         /// <summary>
@@ -142,10 +122,7 @@ namespace EventManager.Api.Controllers
 
             _unitOfWork.PresentationCredential.Remove(presentationCredential);
 
-            if (_unitOfWork.Save() == 1)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
     }
 }

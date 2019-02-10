@@ -1,10 +1,10 @@
-﻿using EventManager.Services.Interfaces;
+﻿using AutoMapper;
 using EventManager.Api.DTOs.Request;
+using EventManager.Api.DTOs.Response;
+using EventManager.Services.Interfaces;
+using EventManager.Services.Model.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
-using AutoMapper;
-using EventManager.Services.Model.Entities;
-using EventManager.Api.DTOs.Response;
 
 namespace EventManager.Api.Controllers
 {
@@ -13,17 +13,11 @@ namespace EventManager.Api.Controllers
     /// </summary>
     [Route("speakers")]
     [ApiController]
-    public class SpeakersController : ControllerBase
+    public class SpeakersController : MasterController
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-
-        public SpeakersController(IUnitOfWork unitOfWork, IMapper mapper)
+        public SpeakersController(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
         }
-
 
         /// <summary>
         /// Get specific speaker of an event
@@ -34,12 +28,10 @@ namespace EventManager.Api.Controllers
         public IActionResult GetById([FromRoute]int id)
         {
             var speaker = _unitOfWork.Speaker.Find(s => s.SpeakerId == id).First();
+
             var result = _mapper.Map<SpeakerResponse>(speaker);
 
-            if (result == null)
-                return NotFound();
-
-            return Ok(result);
+            return ResponseResult(result);
         }
 
         /// <summary>
@@ -54,10 +46,7 @@ namespace EventManager.Api.Controllers
 
             _unitOfWork.Speaker.Add(speaker);
 
-            if (_unitOfWork.Save() == 1)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
 
         /// <summary>
@@ -70,15 +59,9 @@ namespace EventManager.Api.Controllers
         {
             var speaker = _mapper.Map<Speaker>(speakerRequest);
 
-            if(speaker != null)
-            {
-                _unitOfWork.Speaker.Update(speakerRequest.SpeakerId, speaker);
+            _unitOfWork.Speaker.Update(speakerRequest.SpeakerId, speaker);
 
-                if (_unitOfWork.Save() == 1)
-                    return Ok();
-            }
-
-            return BadRequest();
+            return Result();
         }
 
         /// <summary>
@@ -93,10 +76,7 @@ namespace EventManager.Api.Controllers
 
             _unitOfWork.Speaker.Remove(entity);
 
-            if (_unitOfWork.Save() == 1)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
 
 
@@ -112,10 +92,7 @@ namespace EventManager.Api.Controllers
 
             _unitOfWork.SpeakerPresentation.Add(speakerPresentation);
 
-            if (_unitOfWork.Save() == 1)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
 
         /// <summary>
@@ -126,16 +103,14 @@ namespace EventManager.Api.Controllers
         [HttpDelete("presentations")]
         public IActionResult Delete([FromBody] SpeakerPresentationRequest speakerPresentationRequest)
         {
-            var speakerPresentation = _unitOfWork.SpeakerPresentation.Find(s => s.PresentationId == speakerPresentationRequest.PresentationId
-                                                                && s.SpeakerId == speakerPresentationRequest.SpeakerId)
-                                                        .FirstOrDefault();
+            var speakerPresentation = _unitOfWork.SpeakerPresentation
+                                                                    .Find(s => s.PresentationId == speakerPresentationRequest.PresentationId
+                                                                               && s.SpeakerId == speakerPresentationRequest.SpeakerId)
+                                                                    .FirstOrDefault();
 
             _unitOfWork.SpeakerPresentation.Remove(speakerPresentation);
 
-            if (_unitOfWork.Save() == 1)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
     }
 }

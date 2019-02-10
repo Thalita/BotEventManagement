@@ -1,12 +1,10 @@
-﻿using EventManager.Services.Interfaces;
+﻿using AutoMapper;
 using EventManager.Api.DTOs.Request;
-using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using AutoMapper;
-using System.Collections.Generic;
 using EventManager.Api.DTOs.Response;
+using EventManager.Services.Interfaces;
 using EventManager.Services.Model.Entities;
-using System;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace EventManager.Api.Controllers
 {
@@ -15,15 +13,10 @@ namespace EventManager.Api.Controllers
     /// </summary>
     [Route("events")]
     [ApiController]
-    public class EventsController : ControllerBase
+    public class EventsController : MasterController
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-
-        public EventsController(IUnitOfWork unitOfWork, IMapper mapper)
+        public EventsController(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
         }
 
         /// <summary>
@@ -36,7 +29,7 @@ namespace EventManager.Api.Controllers
             var events = _unitOfWork.Event.GetAll();
             var result = _mapper.Map<List<EventResponse>>(events);
 
-            return Ok(result);
+            return ResponseResult(result);
         }
 
         /// <summary>
@@ -50,10 +43,7 @@ namespace EventManager.Api.Controllers
             var @event = _unitOfWork.Event.Get(id);
             var result = _mapper.Map<EventResponse>(@event);
 
-            if (result == null)
-                return NotFound();
-
-            return Ok(result);
+            return ResponseResult(result);
         }
 
         /// <summary>
@@ -67,7 +57,7 @@ namespace EventManager.Api.Controllers
             var attendants = _unitOfWork.Attendant.Find(a => a.Credential.EventId == id);
             var result = _mapper.Map<List<AttendantResponse>>(attendants);
 
-            return Ok(result);
+            return ResponseResult(result);
         }
 
         /// <summary>
@@ -81,7 +71,7 @@ namespace EventManager.Api.Controllers
             var credentials = _unitOfWork.Credential.Find(c => c.EventId == id);
             var result = _mapper.Map<List<CredentialResponse>>(credentials);
 
-            return Ok(result);
+            return ResponseResult(result);
         }
 
         /// <summary>
@@ -95,9 +85,9 @@ namespace EventManager.Api.Controllers
             var presentations = _unitOfWork.Presentation.Find(p => p.EventId == id);
             var result = _mapper.Map<List<PresentationResponse>>(presentations);
 
-            return Ok(result);
+            return ResponseResult(result);
         }
-        
+
         /// <summary>
         /// Get all speakers of an event
         /// </summary>
@@ -109,7 +99,7 @@ namespace EventManager.Api.Controllers
             var speakers = _unitOfWork.Speaker.Find(s => s.EventId == id);
             var result = _mapper.Map<List<SpeakerResponse>>(speakers);
 
-            return Ok(result);
+            return ResponseResult(result);
         }
 
         /// <summary>
@@ -118,12 +108,12 @@ namespace EventManager.Api.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}/sponsors")]
-        public ActionResult GetSponsors([FromRoute] int id)
+        public IActionResult GetSponsors([FromRoute] int id)
         {
             var sponsors = _unitOfWork.Sponsor.Find(s => s.EventId == id);
             var result = _mapper.Map<List<SponsorResponse>>(sponsors);
 
-            return Ok(result);
+            return ResponseResult(result);
         }
 
         /// <summary>
@@ -133,18 +123,12 @@ namespace EventManager.Api.Controllers
         /// <returns></returns>
         [HttpPut]
         public IActionResult Put([FromBody] EventRequest eventRequest)
-        {  
-            var @event = _mapper.Map<Event>(eventRequest);
-
-            if (@event == null)
-                return BadRequest();
+        {
+            var @event = _mapper.Map<Event>(eventRequest);     
 
             _unitOfWork.Event.Update(eventRequest.Id, @event);
 
-            if (_unitOfWork.Save() == 1)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
 
         /// <summary>
@@ -159,10 +143,7 @@ namespace EventManager.Api.Controllers
 
             _unitOfWork.Event.Add(@event);
 
-            if (_unitOfWork.Save() == 1)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
 
         /// <summary>
@@ -177,10 +158,7 @@ namespace EventManager.Api.Controllers
 
             _unitOfWork.Event.Remove(@event);
 
-            if (_unitOfWork.Save() == 1)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
     }
 }

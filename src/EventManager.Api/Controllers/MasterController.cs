@@ -6,8 +6,8 @@ namespace EventManager.Api.Controllers
 {
     public class MasterController: ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
+        protected readonly IUnitOfWork _unitOfWork;
+        protected readonly IMapper _mapper;
 
         public MasterController(IUnitOfWork unitOfWork, IMapper mapper)
         {
@@ -15,7 +15,7 @@ namespace EventManager.Api.Controllers
             _mapper = mapper;
         }
 
-        public IActionResult Response()
+        protected IActionResult Result()
         {
             if (_unitOfWork.Save() > 0)
                 return Ok();
@@ -23,7 +23,7 @@ namespace EventManager.Api.Controllers
             return BadRequest();
         }
 
-        public IActionResult ResponseResult<T>(T result)
+        protected IActionResult ResponseResult<T>(T result)
         {
             if (result == null)
                 return NotFound();

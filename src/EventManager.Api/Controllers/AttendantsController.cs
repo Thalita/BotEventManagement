@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using EventManager.Services.Interfaces;
 using EventManager.Api.DTOs.Request;
 using EventManager.Api.DTOs.Response;
+using EventManager.Services.Interfaces;
 using EventManager.Services.Model.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -14,15 +14,10 @@ namespace EventManager.Api.Controllers
     /// </summary>
     [Route("attendants")]
     [ApiController]
-    public class AttendantsController : ControllerBase
+    public class AttendantsController : MasterController
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-
-        public AttendantsController(IUnitOfWork unitOfWork, IMapper mapper)
-        {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
+        public AttendantsController(IUnitOfWork unitOfWork, IMapper mapper):base(unitOfWork, mapper)
+        {        
         }
 
         /// <summary>
@@ -34,12 +29,10 @@ namespace EventManager.Api.Controllers
         public IActionResult Get([FromRoute]int id)
         {
             var attendant = _unitOfWork.Attendant.Find(x => x.AttendantId == id).FirstOrDefault();
+
             var result = _mapper.Map<AttendantResponse>(attendant);
 
-            if (result == null)
-                return NotFound();
-
-            return Ok(result);
+            return ResponseResult(result);
         }
         
         /// <summary>
@@ -51,9 +44,10 @@ namespace EventManager.Api.Controllers
         public IActionResult GetPresentations([FromRoute] int id)
         {
             var presentation = _unitOfWork.PresentationAttendant.Find(x => x.AttendantId == id).Select(x => x.Presentation);
+
             var result = _mapper.Map<List<PresentationResponse>>(presentation);
 
-            return Ok(result);
+            return ResponseResult(result);
         }
 
         /// <summary>
@@ -66,9 +60,10 @@ namespace EventManager.Api.Controllers
         {
             // TODO: converter para pdf
             var presentation = _unitOfWork.PresentationAttendant.Find(x => x.AttendantId == id).Select(x => x.Presentation);
+
             var result = _mapper.Map<List<PresentationResponse>>(presentation);
 
-            return Ok(result);
+            return ResponseResult(result);
         }
 
         /// <summary>
@@ -80,12 +75,10 @@ namespace EventManager.Api.Controllers
         public IActionResult Post([FromBody] AttendantRequest attendantRequest)
         {
             var attendant = _mapper.Map<Attendant>(attendantRequest);
+
             _unitOfWork.Attendant.Add(attendant);
 
-            if (_unitOfWork.Save() == 1)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
 
         /// <summary>
@@ -97,12 +90,10 @@ namespace EventManager.Api.Controllers
         public IActionResult Create([FromBody] AttendantPresentationRequest attendantPresentationRequest)
         {
             var attendantPresentation = _mapper.Map<PresentationAttendant>(attendantPresentationRequest);
+
             _unitOfWork.PresentationAttendant.Add(attendantPresentation);
 
-            if (_unitOfWork.Save() == 1)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
 
         /// <summary>
@@ -115,15 +106,9 @@ namespace EventManager.Api.Controllers
         {            
             var attendant = _mapper.Map<Attendant>(attendantRequest);
 
-            if(attendant == null)
-                return BadRequest();
-
             _unitOfWork.Attendant.Update(attendantRequest.AttendantId, attendant);
 
-            if (_unitOfWork.Save() != 1)
-                return BadRequest();
-
-            return Ok();
+            return Result();
         }
 
         /// <summary>
@@ -135,12 +120,10 @@ namespace EventManager.Api.Controllers
         public IActionResult Delete([FromRoute] int id)
         {
             var attendant = _unitOfWork.Attendant.Find(x => x.AttendantId == id).First();
+
             _unitOfWork.Attendant.Remove(attendant);
 
-            if (_unitOfWork.Save() > 0)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
 
         /// <summary>
@@ -152,12 +135,10 @@ namespace EventManager.Api.Controllers
         public IActionResult Delete([FromBody] AttendantPresentationRequest attendantPresentationRequest)
         {
             var atendantPresentation = _mapper.Map<PresentationAttendant>(attendantPresentationRequest);
+
             _unitOfWork.PresentationAttendant.Remove(atendantPresentation);
 
-            if (_unitOfWork.Save() == 1)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
     }
 }

@@ -4,6 +4,7 @@ using EventManager.Api.DTOs.Response;
 using EventManager.Services.Interfaces;
 using EventManager.Services.Model.Entities;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,15 +15,10 @@ namespace EventManager.Api.Controllers
     /// </summary>
     [Route("presentations")]
     [ApiController]
-    public class PresentationsController : ControllerBase
+    public class PresentationsController : MasterController
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-
-        public PresentationsController(IUnitOfWork unitOfWork, IMapper mapper)
+        public PresentationsController(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
         }
 
         #region Presentation
@@ -36,53 +32,40 @@ namespace EventManager.Api.Controllers
         public IActionResult GetById([FromRoute]int id)
         {
             var presentation = _unitOfWork.Presentation.Find(p => p.PresentationId == id).First();
+
             var result = _mapper.Map<PresentationResponse>(presentation);
 
-            if (result == null)
-                return NotFound();
-
-            return Ok(result);
+            return ResponseResult(result);
         }
 
-        ////ToDo
-        ///// <summary>
-        ///// Get all attendants by filters
-        ///// </summary>
-        ///// <param name="id">Presentation's id</param>
-        ///// <returns></returns>
-        //[HttpPost]
-        //public IActionResult GetPresentations([FromBody] PresentationRequestFilters filters)
-        //{
+        //ToDo
+        /// <summary>
+        /// Get all pesentation according to filters
+        /// </summary>
+        /// <param name="filters">Presentations filters</param>
+        /// <returns></returns>
+        [HttpPost("/filters")]
+        public IActionResult GetPresentations([FromBody] PresentationRequest filters)
+        {
+            var list = _unitOfWork.Presentation.Find(e => e.EventId == filters.EventId);    
 
-        //    var result = _presentationRepository.Select(e => e.EventId == filters.EventId);
+            //Filter values by reflection
+            var properties = typeof(PresentationRequest).GetProperties();
 
-        //    var teste = new Dictionary<string, object>();
+            foreach (var prop in properties)
+            {
+                var value = prop.GetValue(filters, null);
 
-        //    teste.Add(nameof(filters.Category), filters.Category);
+                if (!IsEmpty(value))
+                {
+                    list = FilterList(list, prop.Name, value.ToString());
+                }
+            }
 
+            var result = _mapper.Map<List<PresentationResponse>>(list);
 
-
-        //    if (!string.IsNullOrEmpty(filters.Category))
-        //    {
-        //        result = result.Where(c => c.Category == filters.Category);
-        //    }
-        //    if (!string.IsNullOrEmpty(filters.Local))
-        //    {
-        //        result = result.Where(l => l.Local == filters.Local);
-        //    }
-        //    if (!string.IsNullOrEmpty(filters.Name))
-        //    {
-        //        result = result.Where(t => t.Theme == filters.Theme);
-        //    }
-
-
-        //    _presentationRepository.Select(p => p.Category == filters.Category);
-
-
-        //    //return Ok(_attendantRepository.Select(x => x.PresentationAttendants.All(p => p.PresentationId == id)));
-
-        //    return Ok();
-        //}
+            return ResponseResult(result);
+        }
 
         /// <summary>
         /// Get all attendants from a specific presentation
@@ -96,7 +79,7 @@ namespace EventManager.Api.Controllers
 
             var result = _mapper.Map<List<AttendantResponse>>(attendants);
 
-            return Ok(result);
+            return ResponseResult(result);
         }
 
         /// <summary>
@@ -109,15 +92,9 @@ namespace EventManager.Api.Controllers
         {
             var presentation = _mapper.Map<Presentation>(presentationRequest);
 
-            if(presentation != null)
-            {
-                _unitOfWork.Presentation.Update(presentationRequest.PresentationId, presentation);
+            _unitOfWork.Presentation.Update(presentationRequest.PresentationId, presentation);
 
-                if (_unitOfWork.Save() == 1)
-                    return Ok();
-            }
-
-            return BadRequest();
+            return Result();
         }
 
         /// <summary>
@@ -132,10 +109,7 @@ namespace EventManager.Api.Controllers
 
             _unitOfWork.Presentation.Add(presentatoin);
 
-            if (_unitOfWork.Save() == 1)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
 
         /// <summary>
@@ -150,12 +124,36 @@ namespace EventManager.Api.Controllers
 
             _unitOfWork.Presentation.Remove(presentation);
 
-            if (_unitOfWork.Save() == 1)
-                return Ok();
-
-            return BadRequest();
+            return Result();
         }
 
         #endregion
+
+
+        private bool IsEmpty<T>(T field)
+        {
+            if (field == null || string.IsNullOrEmpty(field.ToString()))
+                return true;
+            if (field.Equals(default(DateTime)) || field.Equals(default(int)))
+                return true;        
+
+            return false;
+        }
+
+        private IEnumerable<T> FilterList<T>(IEnumerable<T> list, string propName, string filter)
+        {
+            var result = new List<T>();
+            foreach (var item in list)
+            {
+                var value = item.GetType().GetProperty(propName).GetValue(item);
+
+                if (value.ToString().Equals(filter))
+                {
+                    result.Add(item);
+                }
+            }
+            return result;
+        }
+
     }
 }
