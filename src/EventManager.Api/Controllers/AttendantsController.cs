@@ -89,11 +89,24 @@ namespace EventManager.Api.Controllers
         [HttpPost("presentation")]
         public IActionResult Create([FromBody] AttendantPresentationRequest attendantPresentationRequest)
         {
-            var attendantPresentation = _mapper.Map<PresentationAttendant>(attendantPresentationRequest);
+            //ToDo refatorar
+            var attendant = _unitOfWork.Attendant.Get(attendantPresentationRequest.AttendantId);
 
-            _unitOfWork.PresentationAttendant.Add(attendantPresentation);
+            var presentationCredentials = _unitOfWork.PresentationCredential
+                                            .Find(p => p.PresentationId == attendantPresentationRequest.PresentationId);
 
-            return Result();
+            bool credentialAllowed = presentationCredentials.Any(c => c.CredentialId == attendant.CredentialId);
+
+            if (credentialAllowed)
+            {
+                var attendantPresentation = _mapper.Map<PresentationAttendant>(attendantPresentationRequest);
+
+                _unitOfWork.PresentationAttendant.Add(attendantPresentation);
+
+                return Result();
+            }
+
+            return BadRequest();
         }
 
         /// <summary>

@@ -27,11 +27,8 @@ namespace EventManager.Api.Controllers
         {
             if (result == null)
                 return NotFound();
-
-            if (_unitOfWork.Save() > 0)
-                return Ok(result);
-
-            return BadRequest(result);
+            
+            return Ok(result);
         }
     }
 }

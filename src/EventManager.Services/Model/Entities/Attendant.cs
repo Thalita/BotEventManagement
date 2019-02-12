@@ -16,6 +16,10 @@ namespace EventManager.Services.Model.Entities
         public int CredentialId { get; set; }
         public virtual Credential Credential { get; set; }
 
+        [ForeignKey("EventId")]
+        public int EventId { get; set; }
+        public virtual Event Event { get; set; }
+
         public virtual IList<PresentationAttendant> PresentationAttendants { get; set; }
     }
 }

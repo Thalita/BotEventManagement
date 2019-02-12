@@ -1,8 +1,6 @@
 ﻿using EventManager.Services.Converters;
-using EventManager.Services.Model.Entities;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 
 namespace EventManager.Api.DTOs.Request
 {
@@ -11,7 +9,7 @@ namespace EventManager.Api.DTOs.Request
         [JsonProperty("id")]
         public int PresentationId { get; set; }
 
-        [JsonProperty("date"), JsonConverter(typeof(DateFormatConverter), "dd/MM/yyyy HH:mm")]
+        [JsonProperty("date", NullValueHandling = NullValueHandling.Ignore), JsonConverter(typeof(DateFormatConverter), "dd/MM/yyyy HH:mm")]
         public DateTime Date { get; set; }
 
         [JsonProperty("name")]
